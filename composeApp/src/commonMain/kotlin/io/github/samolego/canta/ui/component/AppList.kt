@@ -135,8 +135,8 @@ fun AppList(
                                 visiblePackages.forEach { appListModel.selectedApps.remove(it) }
                             }
                         },
+                        modifier = Modifier.weight(1f),
                     )
-                    Spacer(modifier = Modifier.weight(1f))
                 } else {
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -308,6 +308,7 @@ fun SelectAllOption(
         // Same end inset as the app tiles' list items, so the checkboxes line up.
         modifier = modifier.padding(horizontal = 16.dp),
         textStyle = MaterialTheme.typography.bodyLarge,
+        indication = null,
     )
 }
 
