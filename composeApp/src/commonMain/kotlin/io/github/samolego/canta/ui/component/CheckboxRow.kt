@@ -1,7 +1,11 @@
 package io.github.samolego.canta.ui.component
 
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
@@ -10,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -28,11 +33,16 @@ fun CheckboxRow(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    indication: Indication? = LocalIndication.current,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = modifier
+            .fillMaxWidth()
             .toggleable(
                 value = checked,
+                interactionSource = interactionSource,
+                indication = indication,
                 enabled = enabled,
                 role = Role.Checkbox,
                 onValueChange = onCheckedChange,
@@ -40,7 +50,7 @@ fun CheckboxRow(
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = label, style = textStyle)
+        Text(text = label, style = textStyle, modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.width(8.dp))
         Checkbox(
             checked = checked,
