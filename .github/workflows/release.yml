@@ -76,11 +76,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${{ env.VERSION_NAME }}" \
-            --draft \
-            --title "Canta ${{ env.VERSION_NAME }}" \
-            --notes "" \
-            --target "$GITHUB_SHA"
+          TAG="v${{ env.VERSION_NAME }}"
+          if ! gh release view "$TAG" > /dev/null 2>&1; then
+            gh release create "$TAG" \
+              --draft \
+              --title "Canta ${{ env.VERSION_NAME }}" \
+              --notes "" \
+              --target "$GITHUB_SHA"
+          fi
 
       - name: 📁 Upload APKs, checksums & attestation
         env:
