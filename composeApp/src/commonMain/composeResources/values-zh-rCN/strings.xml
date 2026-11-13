@@ -61,6 +61,10 @@
     <string name="proceed">继续</string>
     <string name="confirm_uninstall_description">是否显示用于确认卸载的显示框。</string>
     <string name="select_all">全选</string>
+    <string name="copy_selected_packages">复制选中包名</string>
+    <string name="select_from_clipboard">从剪贴板选中</string>
+    <string name="packages_copied">包名已复制到剪贴板</string>
+    <string name="no_packages_found_in_clipboard">剪贴板中没有有效的包名</string>
     <string name="select_all_tip">再次点击 %1$d 以启用全选功能。</string>
     <string name="select_all_enabled">已为特殊标志类型 “Recommended” 启用全选。</string>
     <string name="reset_to_factory_version">恢复出厂版本</string>
