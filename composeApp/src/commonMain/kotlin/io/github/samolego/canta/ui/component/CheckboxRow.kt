@@ -2,7 +2,6 @@ package io.github.samolego.canta.ui.component
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
@@ -32,7 +31,6 @@ fun CheckboxRow(
 ) {
     Row(
         modifier = modifier
-            .fillMaxWidth()
             .toggleable(
                 value = checked,
                 enabled = enabled,
@@ -42,7 +40,7 @@ fun CheckboxRow(
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = label, style = textStyle, modifier = Modifier.weight(1f))
+        Text(text = label, style = textStyle)
         Spacer(modifier = Modifier.width(8.dp))
         Checkbox(
             checked = checked,
