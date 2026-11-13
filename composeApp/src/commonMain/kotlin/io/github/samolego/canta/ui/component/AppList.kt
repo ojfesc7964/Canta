@@ -135,8 +135,8 @@ fun AppList(
                                 visiblePackages.forEach { appListModel.selectedApps.remove(it) }
                             }
                         },
-                        modifier = Modifier.weight(1f),
                     )
+                    Spacer(modifier = Modifier.weight(1f))
                 } else {
                     Spacer(modifier = Modifier.weight(1f))
                 }
