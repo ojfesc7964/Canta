@@ -80,6 +80,10 @@
         name="confirm_uninstall_description"
     >Whether to show the dialog for confirming uninstall action.</string>
     <string name="select_all">Select all</string>
+    <string name="copy_selected_packages">Copy selected package names</string>
+    <string name="select_from_clipboard">Select from clipboard</string>
+    <string name="packages_copied">Package names copied to clipboard</string>
+    <string name="no_packages_found_in_clipboard">No valid package names found in clipboard</string>
     <string
         name="select_all_tip"
     >Tap %1$d more times to enable select all functionality.</string>
