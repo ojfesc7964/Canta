@@ -76,20 +76,17 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="v${{ env.VERSION_NAME }}"
-          if ! gh release view "$TAG" > /dev/null 2>&1; then
-            gh release create "$TAG" \
-              --draft \
-              --title "Canta ${{ env.VERSION_NAME }}" \
-              --notes "" \
-              --target "$GITHUB_SHA"
-          fi
+          gh release create "v${{ env.VERSION_NAME }}" \
+            --draft \
+            --title "Canta ${{ env.VERSION_NAME }}" \
+            --notes "" \
+            --target "$GITHUB_SHA"
 
       - name: 📁 Upload APKs, checksums & attestation
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="v${{ env.VERSION_NAME }}"
-          gh release upload "$TAG" androidApp/build/outputs/apk/release/*.apk
-          gh release upload "$TAG" androidApp/build/outputs/apk/release/SHA256SUMS.txt
-          gh release upload "$TAG" "${{ steps.attest.outputs.bundle-path }}"
+          gh release upload "$TAG" androidApp/build/outputs/apk/release/*.apk --clobber
+          gh release upload "$TAG" androidApp/build/outputs/apk/release/SHA256SUMS.txt --clobber
+          gh release upload "$TAG" "${{ steps.attest.outputs.bundle-path }}" --clobber
