@@ -21,6 +21,9 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -36,16 +39,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.samolego.canta.data.app.AppBadgeInfo
 import io.github.samolego.canta.data.app.AppInfo
+import io.github.samolego.canta.packages.isValidPackageName
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.samolego.canta.generated.resources.Res
 import io.github.samolego.canta.generated.resources.clear_selected_apps
+import io.github.samolego.canta.generated.resources.copy_selected_packages
 import io.github.samolego.canta.generated.resources.loading_apps
 import io.github.samolego.canta.generated.resources.loading_badges
 import io.github.samolego.canta.generated.resources.no_apps_found
+import io.github.samolego.canta.generated.resources.no_packages_found_in_clipboard
 import io.github.samolego.canta.generated.resources.num_selected_apps
+import io.github.samolego.canta.generated.resources.packages_copied
 import io.github.samolego.canta.generated.resources.select_all
+import io.github.samolego.canta.generated.resources.select_from_clipboard
 import io.github.samolego.canta.generated.resources.selected_apps
 import io.github.samolego.canta.ui.AppsType
 import io.github.samolego.canta.core.CantaHandler
@@ -76,6 +84,12 @@ fun AppList(
     val selectedAppList by remember { derivedStateOf { appListModel.selectedAppsSorted.filter(appType::matches) } }
     val allowUnsafeUninstalls by settingsViewModel.allowUnsafeUninstalls.collectAsStateWithLifecycle()
 
+    // Strings used inside onClick callbacks must be resolved here, not in the lambda.
+    val copySelectedPackagesText = stringResource(Res.string.copy_selected_packages)
+    val selectFromClipboardText = stringResource(Res.string.select_from_clipboard)
+    val packagesCopiedText = stringResource(Res.string.packages_copied)
+    val noPackagesFoundText = stringResource(Res.string.no_packages_found_in_clipboard)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -96,24 +110,72 @@ fun AppList(
             if (appListModel.isLoadingBadges) {
                 LoadingBadgesIndicator()
             }
-            if (appType == AppsType.UNINSTALLED ||
-                enableSelectAll &&
-                appListModel.selectedFilter.badgeInfo ==
-                AppBadgeInfo.RECOMMENDED
+
+            // Action bar: select-all (when available), copy selected packages,
+            // and select from clipboard.
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Derived from the selection, and scoped to the visible apps, so it
-                // stays in sync and never clears selections on the other tab.
-                val visiblePackages = appList.map { it.packageName }
-                SelectAllOption(
-                    checked = visiblePackages.isNotEmpty() &&
-                            visiblePackages.all { it in appListModel.selectedApps },
-                    onCheckedChange = { selectAll ->
-                        if (selectAll) {
-                            appListModel.selectedApps.addAll(visiblePackages)
-                        } else {
-                            visiblePackages.forEach { appListModel.selectedApps.remove(it) }
+                if (appType == AppsType.UNINSTALLED ||
+                    enableSelectAll &&
+                    appListModel.selectedFilter.badgeInfo ==
+                    AppBadgeInfo.RECOMMENDED
+                ) {
+                    // Derived from the selection, and scoped to the visible apps, so it
+                    // stays in sync and never clears selections on the other tab.
+                    val visiblePackages = appList.map { it.packageName }
+                    SelectAllOption(
+                        checked = visiblePackages.isNotEmpty() &&
+                                visiblePackages.all { it in appListModel.selectedApps },
+                        onCheckedChange = { selectAll ->
+                            if (selectAll) {
+                                appListModel.selectedApps.addAll(visiblePackages)
+                            } else {
+                                visiblePackages.forEach { appListModel.selectedApps.remove(it) }
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+
+                IconClickButton(
+                    onClick = {
+                        val packages = appListModel.selectedApps.joinToString("\n")
+                        if (packages.isNotEmpty()) {
+                            platform.copyToClipboard(packages)
+                            platform.showMessage(packagesCopiedText)
                         }
-                    }
+                    },
+                    icon = Icons.Default.ContentCopy,
+                    contentDescription = copySelectedPackagesText,
+                )
+                IconClickButton(
+                    onClick = {
+                        val clipboard = platform.readClipboard()?.trim().orEmpty()
+                        if (clipboard.isEmpty()) {
+                            platform.showMessage(noPackagesFoundText)
+                        } else {
+                            val packages = clipboard.split(Regex("[\\s,]+"))
+                                .map { it.trim() }
+                                .filter { it.isNotEmpty() && isValidPackageName(it) }
+                            if (packages.isEmpty()) {
+                                platform.showMessage(noPackagesFoundText)
+                            } else {
+                                val existingPackages = appListModel.apps.map { it.packageName }.toSet()
+                                val toSelect = packages.filter { it in existingPackages }
+                                appListModel.selectedApps.clear()
+                                appListModel.selectedApps.addAll(toSelect)
+                                if (toSelect.isEmpty()) {
+                                    platform.showMessage(noPackagesFoundText)
+                                }
+                            }
+                        }
+                    },
+                    icon = Icons.Default.ContentPaste,
+                    contentDescription = selectFromClipboardText,
                 )
             }
 
@@ -234,13 +296,14 @@ fun LoadingBadgesIndicator() {
 fun SelectAllOption(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     CheckboxRow(
         checked = checked,
         onCheckedChange = onCheckedChange,
         label = stringResource(Res.string.select_all),
         // Same end inset as the app tiles' list items, so the checkboxes line up.
-        modifier = Modifier.padding(horizontal = 16.dp),
+        modifier = modifier.padding(horizontal = 16.dp),
         textStyle = MaterialTheme.typography.bodyLarge,
     )
 }
