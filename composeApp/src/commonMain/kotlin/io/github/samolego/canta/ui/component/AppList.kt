@@ -164,8 +164,11 @@ fun AppList(
                             if (packages.isEmpty()) {
                                 platform.showMessage(noPackagesFoundText)
                             } else {
-                                val existingPackages = appListModel.apps.map { it.packageName }.toSet()
-                                val toSelect = packages.filter { it in existingPackages }
+                                // Only select apps that are in the current tab (installed vs uninstalled).
+                                val appInfosByPackage = appListModel.apps.associateBy { it.packageName }
+                                val toSelect = packages.filter { pkg ->
+                                    appInfosByPackage[pkg]?.let { appType.matches(it) } == true
+                                }
                                 appListModel.selectedApps.clear()
                                 appListModel.selectedApps.addAll(toSelect)
                                 if (toSelect.isEmpty()) {
