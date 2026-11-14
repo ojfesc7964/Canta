@@ -114,8 +114,9 @@ fun AppList(
             // Action bar: select-all (when available), copy selected packages,
             // and select from clipboard.
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (appType == AppsType.UNINSTALLED ||
                     enableSelectAll &&
