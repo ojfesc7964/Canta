@@ -114,9 +114,8 @@ fun AppList(
             // Action bar: select-all (when available), copy selected packages,
             // and select from clipboard.
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (appType == AppsType.UNINSTALLED ||
                     enableSelectAll &&
@@ -306,8 +305,7 @@ fun SelectAllOption(
         checked = checked,
         onCheckedChange = onCheckedChange,
         label = stringResource(Res.string.select_all),
-        // Same end inset as the app tiles' list items, so the checkboxes line up.
-        modifier = modifier.padding(horizontal = 16.dp),
+        modifier = modifier,
         textStyle = MaterialTheme.typography.bodyLarge,
         indication = null,
     )
